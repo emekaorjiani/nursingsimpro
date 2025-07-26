@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom gradient background */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Custom button styles */
+.btn-primary {
+  @apply inline-flex items-center px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center px-6 py-3 border-2 border-white text-white rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors duration-200;
+}
+
+/* Custom navigation styles */
+.nav-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Custom image placeholders */
+.image-placeholder {
+  @apply w-full h-72 bg-gradient-primary rounded-2xl flex items-center justify-center text-6xl text-white;
+}
+
+.image-placeholder.training {
+  @apply h-64;
+}
+
+/* Custom form styles */
+.form-input {
+  @apply w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-colors duration-300 focus:outline-none focus:border-blue-600;
+}
+
+.form-textarea {
+  @apply w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-base transition-colors duration-300 focus:outline-none focus:border-blue-600 min-h-32;
+}
+
+/* Custom error styles */
+.form-error {
+  @apply text-red-600 text-sm mt-2;
+}
+
+/* Custom social link styles */
+.social-link {
+  @apply w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-white transition-colors duration-300 hover:bg-blue-600;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
