@@ -306,9 +306,9 @@ export default function MyCourses({ enrolledCourses, user }) {
                                 >
                                     {/* Course Image */}
                                     <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-                                        {course.image ? (
+                                        {course.thumbnail ? (
                                             <img 
-                                                src={course.image} 
+                                                src={`/storage/${course.thumbnail}`} 
                                                 alt={course.title}
                                                 className="w-full h-full object-cover"
                                             />

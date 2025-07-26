@@ -18,7 +18,7 @@ export default function AdminCourses({ courses }) {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Course
@@ -33,10 +33,10 @@ export default function AdminCourses({ courses }) {
                             <input
                                 type="text"
                                 placeholder="Search courses..."
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                         </div>
-                        <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             <option>All Courses</option>
                             <option>Active</option>
                             <option>Draft</option>
@@ -54,8 +54,16 @@ export default function AdminCourses({ courses }) {
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                             className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                         >
-                            <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                <BookOpen className="w-16 h-16 text-white" />
+                            <div className="h-48 bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center relative overflow-hidden">
+                                {course.thumbnail ? (
+                                    <img
+                                        src={`/storage/${course.thumbnail}`}
+                                        alt={course.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <BookOpen className="w-16 h-16 text-white" />
+                                )}
                             </div>
                             <div className="p-6">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{course.title}</h3>
@@ -73,7 +81,7 @@ export default function AdminCourses({ courses }) {
                                 </div>
                                 
                                 <div className="flex space-x-2">
-                                    <button className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
+                                    <button className="flex-1 bg-purple-600 text-white px-3 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors">
                                         Edit
                                     </button>
                                     <button className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors">
@@ -99,7 +107,7 @@ export default function AdminCourses({ courses }) {
                                         href={link.url}
                                         className={`px-3 py-2 text-sm rounded-md ${
                                             link.active
-                                                ? 'bg-blue-600 text-white'
+                                                ? 'bg-purple-600 text-white'
                                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                         }`}
                                         dangerouslySetInnerHTML={{ __html: link.label }}

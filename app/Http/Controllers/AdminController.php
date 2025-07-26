@@ -101,6 +101,39 @@ class AdminController extends Controller
         ]);
     }
 
+    public function createCourse()
+    {
+        return Inertia::render('Admin/CreateCourse');
+    }
+
+    public function storeCourse(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'slug' => 'required|string|unique:courses,slug',
+            'difficulty' => 'required|in:beginner,intermediate,advanced',
+            'duration_weeks' => 'required|integer|min:1',
+            'time_commitment_hours' => 'required|integer|min:1',
+            'language' => 'required|string|max:50',
+            'learning_objectives' => 'nullable|string',
+            'prerequisites' => 'nullable|string',
+            'is_published' => 'boolean',
+            'is_featured' => 'boolean',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Handle thumbnail upload
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
+            $validated['thumbnail'] = $thumbnailPath;
+        }
+
+        $course = Course::create($validated);
+
+        return redirect()->route('admin.courses')->with('success', 'Course created successfully!');
+    }
+
     public function analytics()
     {
         // Monthly user registrations

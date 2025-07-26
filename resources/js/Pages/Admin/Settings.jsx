@@ -8,31 +8,31 @@ export default function AdminSettings() {
         {
             title: 'General Settings',
             icon: Settings,
-            color: 'bg-blue-500',
+            color: 'bg-purple-500',
             description: 'Basic platform configuration'
         },
         {
             title: 'Security Settings',
             icon: Shield,
-            color: 'bg-red-500',
+            color: 'bg-purple-600',
             description: 'Authentication and security options'
         },
         {
             title: 'Notification Settings',
             icon: Bell,
-            color: 'bg-green-500',
+            color: 'bg-purple-700',
             description: 'Email and notification preferences'
         },
         {
             title: 'Database Settings',
             icon: Database,
-            color: 'bg-purple-500',
+            color: 'bg-purple-800',
             description: 'Database configuration and backup'
         },
         {
             title: 'Regional Settings',
             icon: Globe,
-            color: 'bg-orange-500',
+            color: 'bg-purple-900',
             description: 'Language and timezone settings'
         }
     ];
@@ -81,7 +81,7 @@ export default function AdminSettings() {
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                         >
                             <Save className="w-4 h-4 mr-2" />
                             Save All Settings
@@ -97,10 +97,10 @@ export default function AdminSettings() {
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                            className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors flex items-center"
                         >
-                            <Globe className="w-4 h-4 mr-2" />
-                            Reset to Defaults
+                            <Shield className="w-4 h-4 mr-2" />
+                            Security Check
                         </motion.button>
                     </div>
                 </div>

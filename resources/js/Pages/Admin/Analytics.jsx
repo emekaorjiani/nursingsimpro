@@ -11,7 +11,7 @@ export default function AdminAnalytics({ monthlyRegistrations, enrollmentTrends 
             change: '+12.5%',
             changeType: 'positive',
             icon: TrendingUp,
-            color: 'bg-green-500'
+            color: 'bg-purple-500'
         },
         {
             title: 'Active Users',
@@ -19,7 +19,7 @@ export default function AdminAnalytics({ monthlyRegistrations, enrollmentTrends 
             change: '+8.2%',
             changeType: 'positive',
             icon: Users,
-            color: 'bg-blue-500'
+            color: 'bg-purple-600'
         },
         {
             title: 'Course Completions',
@@ -27,7 +27,7 @@ export default function AdminAnalytics({ monthlyRegistrations, enrollmentTrends 
             change: '+15.3%',
             changeType: 'positive',
             icon: Award,
-            color: 'bg-purple-500'
+            color: 'bg-purple-700'
         },
         {
             title: 'New Enrollments',
@@ -35,7 +35,7 @@ export default function AdminAnalytics({ monthlyRegistrations, enrollmentTrends 
             change: '+5.7%',
             changeType: 'positive',
             icon: BookOpen,
-            color: 'bg-orange-500'
+            color: 'bg-purple-800'
         }
     ];
 
@@ -94,7 +94,7 @@ export default function AdminAnalytics({ monthlyRegistrations, enrollmentTrends 
                             {monthlyRegistrations.map((data, index) => (
                                 <div key={data.month} className="flex-1 flex flex-col items-center">
                                     <div 
-                                        className="w-full bg-blue-500 rounded-t"
+                                        className="w-full bg-purple-500 rounded-t"
                                         style={{ height: `${(data.count / Math.max(...monthlyRegistrations.map(d => d.count))) * 200}px` }}
                                     ></div>
                                     <span className="text-xs text-gray-500 mt-2">{data.month}</span>

@@ -52,8 +52,16 @@ export default function CoursesIndex({ featuredCourses, allCourses }) {
                                     transition={{ duration: 0.6, delay: index * 0.1 }}
                                     whileHover={{ y: -5 }}
                                 >
-                                    <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                        <BookOpen className="w-16 h-16 text-white" />
+                                    <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
+                                        {course.thumbnail ? (
+                                            <img
+                                                src={`/storage/${course.thumbnail}`}
+                                                alt={course.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <BookOpen className="w-16 h-16 text-white" />
+                                        )}
                                     </div>
                                     <div className="p-6">
                                         <h3 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h3>
@@ -101,8 +109,16 @@ export default function CoursesIndex({ featuredCourses, allCourses }) {
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
                                 whileHover={{ y: -5 }}
                             >
-                                <div className="h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
-                                    <BookOpen className="w-16 h-16 text-white" />
+                                <div className="h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center relative overflow-hidden">
+                                    {course.thumbnail ? (
+                                        <img
+                                            src={`/storage/${course.thumbnail}`}
+                                            alt={course.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <BookOpen className="w-16 h-16 text-white" />
+                                    )}
                                 </div>
                                 <div className="p-6">
                                     <h3 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h3>

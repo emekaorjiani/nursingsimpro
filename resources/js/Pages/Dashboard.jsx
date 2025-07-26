@@ -24,7 +24,7 @@ export default function Dashboard({ stats, recentUsers, recentCourses, coursePro
             change: '+12%',
             changeType: 'positive',
             icon: Users,
-            color: 'bg-blue-500',
+            color: 'bg-purple-500',
             description: 'Registered users'
         },
         {
@@ -57,10 +57,10 @@ export default function Dashboard({ stats, recentUsers, recentCourses, coursePro
     ];
 
     const quickActions = [
-        { title: 'Add New Course', icon: BookOpen, href: '/admin/courses/create', color: 'bg-blue-500' },
-        { title: 'View All Users', icon: Users, href: '/admin/users', color: 'bg-green-500' },
-        { title: 'Analytics Report', icon: BarChart3, href: '/admin/analytics', color: 'bg-purple-500' },
-        { title: 'System Settings', icon: Activity, href: '/admin/settings', color: 'bg-orange-500' }
+        { title: 'Add New Course', icon: BookOpen, href: '/admin/courses/create', color: 'bg-purple-500' },
+        { title: 'View All Users', icon: Users, href: '/admin/users', color: 'bg-purple-600' },
+        { title: 'Analytics Report', icon: BarChart3, href: '/admin/analytics', color: 'bg-purple-700' },
+        { title: 'System Settings', icon: Activity, href: '/admin/settings', color: 'bg-purple-800' }
     ];
 
     return (

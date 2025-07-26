@@ -26,8 +26,22 @@ export default function CourseShow({ course, userProgress, user }) {
     return (
         <MainLayout title={`${course.title} - NursingSim Pro`}>
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 pt-24 pb-16">
-                <div className="max-w-7xl mx-auto px-5">
+            <div className="relative pt-24 pb-16 overflow-hidden">
+                {/* Background Image with Overlay */}
+                {course.thumbnail ? (
+                    <div className="absolute inset-0">
+                        <img
+                            src={`/storage/${course.thumbnail}`}
+                            alt={course.title}
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-purple-900/80"></div>
+                    </div>
+                ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100"></div>
+                )}
+                
+                <div className="relative max-w-7xl mx-auto px-5">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -35,7 +49,11 @@ export default function CourseShow({ course, userProgress, user }) {
                     >
                         <Link 
                             href="/courses" 
-                            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 transition-colors duration-200"
+                            className={`inline-flex items-center mb-6 transition-colors duration-200 ${
+                                course.thumbnail 
+                                    ? 'text-white hover:text-gray-200' 
+                                    : 'text-blue-600 hover:text-blue-700'
+                            }`}
                         >
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Courses
@@ -43,28 +61,44 @@ export default function CourseShow({ course, userProgress, user }) {
                         
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
                             <div>
-                                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                                <h1 className={`text-4xl md:text-5xl font-bold mb-6 ${
+                                    course.thumbnail ? 'text-white' : 'text-gray-900'
+                                }`}>
                                     {course.title}
                                 </h1>
-                                <p className="text-xl text-gray-600 mb-8">
+                                <p className={`text-xl mb-8 ${
+                                    course.thumbnail ? 'text-gray-200' : 'text-gray-600'
+                                }`}>
                                     {course.description}
                                 </p>
                                 
                                 <div className="flex items-center space-x-6 mb-8">
                                     <div className="flex items-center">
-                                        <Clock className="w-5 h-5 text-gray-500 mr-2" />
-                                        <span className="text-gray-600">{course.duration}</span>
+                                        <Clock className={`w-5 h-5 mr-2 ${
+                                            course.thumbnail ? 'text-gray-300' : 'text-gray-500'
+                                        }`} />
+                                        <span className={course.thumbnail ? 'text-gray-200' : 'text-gray-600'}>
+                                            {course.duration}
+                                        </span>
                                     </div>
-
-
                                 </div>
                                 
                                 {isEnrolled && (
                                     <div className="mb-8">
                                         <div className="flex items-center space-x-4">
-                                            <span className="text-sm font-medium text-gray-700">Course Progress</span>
-                                            <span className="text-sm text-blue-600 font-medium">{userProgress.progress_percentage}%</span>
-                                            <span className="text-sm text-gray-500">
+                                            <span className={`text-sm font-medium ${
+                                                course.thumbnail ? 'text-gray-200' : 'text-gray-700'
+                                            }`}>
+                                                Course Progress
+                                            </span>
+                                            <span className={`text-sm font-medium ${
+                                                course.thumbnail ? 'text-blue-300' : 'text-blue-600'
+                                            }`}>
+                                                {userProgress.progress_percentage}%
+                                            </span>
+                                            <span className={`text-sm ${
+                                                course.thumbnail ? 'text-gray-300' : 'text-gray-500'
+                                            }`}>
                                                 ({userProgress.completed_lessons?.length || 0} of {course.lessons.length} lessons)
                                             </span>
                                             {userProgress.progress_percentage >= 100 && (
@@ -75,7 +109,9 @@ export default function CourseShow({ course, userProgress, user }) {
                                             )}
                                         </div>
                                         {userProgress.progress_percentage >= 100 && (
-                                            <p className="text-sm text-gray-600 mt-2">
+                                            <p className={`text-sm mt-2 ${
+                                                course.thumbnail ? 'text-gray-200' : 'text-gray-600'
+                                            }`}>
                                                 Course completed! You can now freely navigate through all lessons for review.
                                             </p>
                                         )}
@@ -113,9 +149,19 @@ export default function CourseShow({ course, userProgress, user }) {
                             </div>
                             
                             <div className="flex justify-center">
-                                <div className="w-80 h-80 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                                    <BookOpen className="w-32 h-32 text-white" />
-                                </div>
+                                {course.thumbnail ? (
+                                    <div className="w-80 h-80 rounded-2xl overflow-hidden shadow-2xl">
+                                        <img
+                                            src={`/storage/${course.thumbnail}`}
+                                            alt={course.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-80 h-80 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                                        <BookOpen className="w-32 h-32 text-white" />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>

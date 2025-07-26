@@ -18,7 +18,7 @@ export default function AdminUsers({ users }) {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
                     >
                         Add User
                     </motion.button>
@@ -32,10 +32,10 @@ export default function AdminUsers({ users }) {
                             <input
                                 type="text"
                                 placeholder="Search users..."
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                         </div>
-                        <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             <option>All Users</option>
                             <option>Active</option>
                             <option>Inactive</option>
@@ -80,7 +80,7 @@ export default function AdminUsers({ users }) {
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
                                                     <span className="text-sm font-medium text-white">
                                                         {user.name.charAt(0).toUpperCase()}
                                                     </span>

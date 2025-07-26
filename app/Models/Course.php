@@ -15,7 +15,6 @@ class Course extends Model
         'title',
         'description',
         'slug',
-        'image',
         'difficulty',
         'duration_weeks',
         'time_commitment_hours',
@@ -24,9 +23,7 @@ class Course extends Model
         'prerequisites',
         'is_published',
         'is_featured',
-        'order',
-        'category',
-        'tags',
+        'thumbnail',
     ];
 
     protected $casts = [
