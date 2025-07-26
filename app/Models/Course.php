@@ -52,6 +52,14 @@ class Course extends Model
     }
 
     /**
+     * Get the enrollments for this course (alias for userProgress)
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(UserCourseProgress::class);
+    }
+
+    /**
      * Get published lessons only
      */
     public function publishedLessons(): HasMany

@@ -34,9 +34,17 @@ Route::post('/courses/{course:slug}/lessons/{lesson:slug}/complete-course', [Les
 });
 
 // Breeze authentication routes
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'admin'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('dashboard');
+
+// Admin routes
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
+    Route::get('/courses', [App\Http\Controllers\AdminController::class, 'courses'])->name('courses');
+    Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
+    Route::get('/settings', [App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
