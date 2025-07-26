@@ -55,15 +55,11 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Check if there's a return URL in the session
-        $returnUrl = session('returnUrl');
-        
-        if ($returnUrl) {
-            // Clear the return URL from session
-            $request->session()->forget('returnUrl');
-            return redirect($returnUrl);
+        // Redirect based on user role
+        if (auth()->user()->is_admin) {
+            return redirect(route('dashboard', absolute: false));
+        } else {
+            return redirect(route('courses.my-courses', absolute: false));
         }
-
-        return redirect(route('dashboard', absolute: false));
     }
 }

@@ -51,7 +51,12 @@ class AuthenticatedSessionController extends Controller
             return redirect($returnUrl);
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect based on user role
+        if (auth()->user()->is_admin) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        } else {
+            return redirect()->intended(route('courses.my-courses', absolute: false));
+        }
     }
 
     /**

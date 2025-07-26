@@ -19,7 +19,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => true]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -28,6 +28,19 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_regular_users_redirect_to_my_courses_after_login(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('courses.my-courses', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

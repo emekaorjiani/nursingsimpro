@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -79,5 +80,13 @@ class User extends Authenticatable
     public function getCourseProgress($courseId)
     {
         return $this->courseProgress()->where('course_id', $courseId)->first();
+    }
+
+    /**
+     * Check if user is an admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin;
     }
 }

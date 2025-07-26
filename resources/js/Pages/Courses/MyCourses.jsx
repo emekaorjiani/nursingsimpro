@@ -95,26 +95,26 @@ export default function MyCourses({ enrolledCourses, user }) {
 
                         {/* Desktop Navigation */}
                         <div className="hidden md:flex items-center space-x-8">
-                            <motion.li whileHover={{ scale: 1.05 }}>
+                            <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/#about" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                     ABOUT
                                 </Link>
-                            </motion.li>
-                            <motion.li whileHover={{ scale: 1.05 }}>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/#images" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                     IMAGES
                                 </Link>
-                            </motion.li>
-                            <motion.li whileHover={{ scale: 1.05 }}>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/courses" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                     COURSES
                                 </Link>
-                            </motion.li>
-                            <motion.li whileHover={{ scale: 1.05 }}>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/#contact" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                     CONTACT
                                 </Link>
-                            </motion.li>
+                            </motion.div>
                         </div>
 
                         {/* User Menu */}
@@ -124,9 +124,11 @@ export default function MyCourses({ enrolledCourses, user }) {
                                     <Link href="/my-courses" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                         My Courses
                                     </Link>
-                                    <Link href="/dashboard" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                        Dashboard
-                                    </Link>
+                                    {user.is_admin ? (
+                                        <Link href="/dashboard" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
+                                            Dashboard
+                                        </Link>
+                                    ) : null}
                                     <Link href="/logout" method="post" as="button" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                         Logout
                                     </Link>
@@ -184,9 +186,11 @@ export default function MyCourses({ enrolledCourses, user }) {
                                         <Link href="/my-courses" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                             My Courses
                                         </Link>
-                                        <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                            Dashboard
-                                        </Link>
+                                        {user.is_admin ? (
+                                            <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
+                                                Dashboard
+                                            </Link>
+                                        ) : null}
                                         <Link href="/logout" method="post" as="button" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                             Logout
                                         </Link>

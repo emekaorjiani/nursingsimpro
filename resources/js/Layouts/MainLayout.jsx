@@ -69,11 +69,13 @@ export default function MainLayout({ children, title }) {
                                         My Courses
                                     </Link>
                                 </motion.div>
-                                <motion.div whileHover={{ scale: 1.05 }}>
-                                    <Link href="/dashboard" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                        Dashboard
-                                    </Link>
-                                </motion.div>
+                                {user.is_admin ? (
+                                    <motion.div whileHover={{ scale: 1.05 }}>
+                                        <Link href="/dashboard" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
+                                            Dashboard
+                                        </Link>
+                                    </motion.div>
+                                ) : null}
                                 <motion.div whileHover={{ scale: 1.05 }}>
                                     <Link href="/logout" method="post" as="button" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                         Logout
