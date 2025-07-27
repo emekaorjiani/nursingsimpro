@@ -1,5 +1,6 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { 
     Mail, 
     Clock, 
@@ -16,10 +17,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-export default function AdminContacts({ contacts, stats }) {
+export default function AdminMessages({ contacts, stats }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const { delete: destroy } = useForm();
+
 
     const filteredContacts = contacts.data.filter(contact => {
         const matchesSearch = 
@@ -33,8 +34,8 @@ export default function AdminContacts({ contacts, stats }) {
     });
 
     const handleDelete = (contactId) => {
-        if (confirm('Are you sure you want to delete this contact message?')) {
-            destroy(route('admin.contacts.delete', contactId));
+        if (confirm('Are you sure you want to delete this message?')) {
+            router.delete(`/admin/messages/${contactId}`);
         }
     };
 
@@ -54,14 +55,14 @@ export default function AdminContacts({ contacts, stats }) {
     };
 
     return (
-        <>
-            <Head title="Contact Messages - Admin" />
+        <DashboardLayout title="Messages">
+            <Head title="Messages - Admin" />
             
-            <div className="py-8">
+            <div className="w-full max-w-none pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">Contact Messages</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
                         <p className="mt-2 text-gray-600">Manage and respond to contact form submissions</p>
                     </div>
 
@@ -78,7 +79,7 @@ export default function AdminContacts({ contacts, stats }) {
                                     <Mail className="w-6 h-6 text-blue-600" />
                                 </div>
                                 <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">Total Messages</p>
+                                    <p className="text-sm font-medium text-gray-600">Total</p>
                                     <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
                                 </div>
                             </div>
@@ -95,7 +96,7 @@ export default function AdminContacts({ contacts, stats }) {
                                     <AlertCircle className="w-6 h-6 text-blue-600" />
                                 </div>
                                 <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">New Messages</p>
+                                    <p className="text-sm font-medium text-gray-600">New</p>
                                     <p className="text-2xl font-bold text-gray-900">{stats.new}</p>
                                 </div>
                             </div>
@@ -176,7 +177,7 @@ export default function AdminContacts({ contacts, stats }) {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Contact
+                                            Sender
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Message
@@ -250,7 +251,7 @@ export default function AdminContacts({ contacts, stats }) {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div className="flex items-center space-x-2">
                                                     <Link
-                                                        href={route('admin.contacts.detail', contact.id)}
+                                                        href={`/admin/messages/${contact.id || ''}`}
                                                         className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                                                     >
                                                         <Eye className="w-4 h-4" />
@@ -276,7 +277,7 @@ export default function AdminContacts({ contacts, stats }) {
                                     <div className="flex-1 flex justify-between sm:hidden">
                                         {contacts.prev_page_url && (
                                             <Link
-                                                href={contacts.prev_page_url}
+                                                href={contacts.prev_page_url || '#'}
                                                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                             >
                                                 Previous
@@ -284,7 +285,7 @@ export default function AdminContacts({ contacts, stats }) {
                                         )}
                                         {contacts.next_page_url && (
                                             <Link
-                                                href={contacts.next_page_url}
+                                                href={contacts.next_page_url || '#'}
                                                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                             >
                                                 Next
@@ -306,18 +307,29 @@ export default function AdminContacts({ contacts, stats }) {
                                         <div>
                                             <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                                                 {contacts.links.map((link, index) => (
-                                                    <Link
-                                                        key={index}
-                                                        href={link.url}
-                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                            link.active
-                                                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                                        } ${index === 0 ? 'rounded-l-md' : ''} ${
-                                                            index === contacts.links.length - 1 ? 'rounded-r-md' : ''
-                                                        }`}
-                                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                                    />
+                                                    link.url ? (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url}
+                                                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                                                link.active
+                                                                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                            } ${index === 0 ? 'rounded-l-md' : ''} ${
+                                                                index === contacts.links.length - 1 ? 'rounded-r-md' : ''
+                                                            }`}
+                                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                                        />
+                                                    ) : (
+                                                        <span
+                                                            key={index}
+                                                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed ${
+                                                                index === 0 ? 'rounded-l-md' : ''
+                                                            } ${index === contacts.links.length - 1 ? 'rounded-r-md' : ''
+                                                            }`}
+                                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                                        />
+                                                    )
                                                 ))}
                                             </nav>
                                         </div>
@@ -328,6 +340,6 @@ export default function AdminContacts({ contacts, stats }) {
                     </div>
                 </div>
             </div>
-        </>
+        </DashboardLayout>
     );
 } 

@@ -9,7 +9,8 @@ import {
     LogOut,
     Menu,
     X,
-    Heart
+    Heart,
+    Mail
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -21,6 +22,7 @@ export default function DashboardLayout({ children, title }) {
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Users', href: '/admin/users', icon: Users },
         { name: 'Courses', href: '/admin/courses', icon: BookOpen },
+        { name: 'Messages', href: '/admin/messages', icon: Mail },
         { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
         { name: 'Settings', href: '/admin/settings', icon: Settings },
     ];

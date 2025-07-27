@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AdminContactTest extends TestCase
+class AdminMessageTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -21,13 +21,13 @@ class AdminContactTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_view_contacts_list()
+    public function test_admin_can_view_messages_list()
     {
         // Create some test contacts
         Contact::factory()->count(3)->create();
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.contacts'));
+            ->get(route('admin.messages'));
 
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => 
@@ -36,12 +36,12 @@ class AdminContactTest extends TestCase
         );
     }
 
-    public function test_admin_can_view_contact_detail()
+    public function test_admin_can_view_message_detail()
     {
         $contact = Contact::factory()->create();
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.contacts.detail', $contact));
+            ->get(route('admin.messages.detail', $contact));
 
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => 
@@ -50,12 +50,12 @@ class AdminContactTest extends TestCase
         );
     }
 
-    public function test_admin_can_respond_to_contact()
+    public function test_admin_can_respond_to_message()
     {
         $contact = Contact::factory()->create();
 
         $response = $this->actingAs($this->admin)
-            ->post(route('admin.contacts.respond', $contact), [
+            ->post(route('admin.messages.respond', $contact), [
                 'response' => 'Thank you for your message. We will get back to you soon.',
             ]);
 

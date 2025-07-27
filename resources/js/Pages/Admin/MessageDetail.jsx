@@ -1,5 +1,6 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { 
     ArrowLeft, 
     Mail, 
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-export default function ContactDetail({ contact }) {
+export default function MessageDetail({ contact }) {
     const [showResponseForm, setShowResponseForm] = useState(false);
     const { data, setData, post, processing, errors } = useForm({
         response: contact.admin_response || '',
@@ -22,7 +23,7 @@ export default function ContactDetail({ contact }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('admin.contacts.respond', contact.id), {
+        post(`/admin/messages/${contact.id || ''}/respond`, {
             onSuccess: () => {
                 setShowResponseForm(false);
             },
@@ -45,24 +46,24 @@ export default function ContactDetail({ contact }) {
     };
 
     return (
-        <>
-            <Head title={`Contact from ${contact.name} - Admin`} />
+        <DashboardLayout title={`Message from ${contact.name}`}>
+            <Head title={`Message from ${contact.name} - Admin`} />
             
-            <div className="py-8">
+            <div className="w-full max-w-none pt-20">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <Link
-                                    href={route('admin.contacts')}
+                                    href="/admin/messages"
                                     className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
                                 >
                                     <ArrowLeft className="w-4 h-4 mr-1" />
-                                    Back to Contacts
+                                    Back to Messages
                                 </Link>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-900">Contact Message</h1>
+                                    <h1 className="text-3xl font-bold text-gray-900">Message</h1>
                                     <p className="mt-1 text-gray-600">From {contact.name}</p>
                                 </div>
                             </div>
@@ -87,7 +88,7 @@ export default function ContactDetail({ contact }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+                                <h2 className="text-xl font-semibold text-gray-900 mb-4">Sender Information</h2>
                                 <div className="space-y-4">
                                     <div className="flex items-center">
                                         <User className="w-5 h-5 text-gray-400 mr-3" />
@@ -294,6 +295,6 @@ export default function ContactDetail({ contact }) {
                     </div>
                 </div>
             </div>
-        </>
+        </DashboardLayout>
     );
 } 

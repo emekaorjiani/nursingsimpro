@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Models\CourseLesson;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -21,9 +22,12 @@ class AdminController extends Controller
             'totalCourses' => Course::count(),
             'activeEnrollments' => UserCourseProgress::where('status', 'in_progress')->count(),
             'completionRate' => $this->calculateCompletionRate(),
+            'totalMessages' => Contact::count(),
+            'newMessages' => Contact::new()->count(),
+            'unreadMessages' => Contact::unread()->count(),
         ];
 
-        // Get recent users
+        // Get recent users (last 7 days)
         $recentUsers = User::latest()
             ->take(5)
             ->get(['id', 'name', 'email', 'created_at'])
@@ -33,14 +37,34 @@ class AdminController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'created_at' => $user->created_at->diffForHumans(),
+                    'is_recent' => $user->created_at->isAfter(now()->subDays(7)),
                 ];
             });
 
-        // Get course progress data
-        $courseProgress = Course::withCount(['enrollments as enrolled_count'])
-            ->withCount(['enrollments as active_users' => function ($query) {
-                $query->where('status', 'in_progress');
+        // Get recent unread and in-progress messages only
+        $recentMessages = Contact::whereIn('status', ['new', 'in_progress'])
+            ->latest()
+            ->take(5)
+            ->get(['id', 'name', 'email', 'message', 'status', 'created_at'])
+            ->map(function ($contact) {
+                return [
+                    'id' => $contact->id,
+                    'name' => $contact->name,
+                    'email' => $contact->email,
+                    'message' => \Str::limit($contact->message, 50),
+                    'status' => $contact->status,
+                    'created_at' => $contact->created_at->diffForHumans(),
+                    'is_recent' => $contact->created_at->isAfter(now()->subDays(7)),
+                ];
+            });
+
+        // Get top 4 most popular courses
+        $popularCourses = Course::withCount(['enrollments as enrolled_count'])
+            ->withCount(['enrollments as completed_count' => function ($query) {
+                $query->where('status', 'completed');
             }])
+            ->orderBy('enrolled_count', 'desc')
+            ->take(4)
             ->get()
             ->map(function ($course) {
                 $totalEnrollments = $course->enrollments()->count();
@@ -50,16 +74,57 @@ class AdminController extends Controller
                     'id' => $course->id,
                     'title' => $course->title,
                     'enrolled_count' => $course->enrolled_count,
-                    'active_users' => $course->active_users,
+                    'completed_count' => $course->completed_count,
                     'completion_rate' => $totalEnrollments > 0 ? round(($completedEnrollments / $totalEnrollments) * 100) : 0,
+                    'thumbnail' => $course->thumbnail,
                 ];
-            })
-            ->take(4);
+            });
+
+        // Get detailed activity data for tabulated view
+        $activityData = [
+            'users' => [
+                'new_users_7_days' => User::where('created_at', '>=', now()->subDays(7))->count(),
+                'new_users_30_days' => User::where('created_at', '>=', now()->subDays(30))->count(),
+                'total_users' => User::count(),
+                'active_users' => User::whereHas('courseProgress', function($query) {
+                    $query->where('status', 'in_progress');
+                })->count(),
+            ],
+            'messages' => [
+                'new_messages_7_days' => Contact::where('created_at', '>=', now()->subDays(7))->count(),
+                'new_messages_30_days' => Contact::where('created_at', '>=', now()->subDays(30))->count(),
+                'total_messages' => Contact::count(),
+                'unread_messages' => Contact::unread()->count(),
+                'in_progress_messages' => Contact::where('status', 'in_progress')->count(),
+                'resolved_messages' => Contact::where('status', 'resolved')->count(),
+            ],
+            'enrollments' => [
+                'new_enrollments_7_days' => UserCourseProgress::where('created_at', '>=', now()->subDays(7))->count(),
+                'new_enrollments_30_days' => UserCourseProgress::where('created_at', '>=', now()->subDays(30))->count(),
+                'total_enrollments' => UserCourseProgress::count(),
+                'active_enrollments' => UserCourseProgress::where('status', 'in_progress')->count(),
+                'completed_enrollments' => UserCourseProgress::where('status', 'completed')->count(),
+            ],
+            'courses' => [
+                'completed_courses_7_days' => UserCourseProgress::where('status', 'completed')
+                    ->where('updated_at', '>=', now()->subDays(7))
+                    ->count(),
+                'completed_courses_30_days' => UserCourseProgress::where('status', 'completed')
+                    ->where('updated_at', '>=', now()->subDays(30))
+                    ->count(),
+                'total_courses' => Course::count(),
+                'active_courses' => Course::whereHas('enrollments', function($query) {
+                    $query->where('status', 'in_progress');
+                })->count(),
+            ],
+        ];
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
             'recentUsers' => $recentUsers,
-            'courseProgress' => $courseProgress,
+            'recentMessages' => $recentMessages,
+            'popularCourses' => $popularCourses,
+            'activityData' => $activityData,
         ]);
     }
 
@@ -377,8 +442,8 @@ class AdminController extends Controller
         return Inertia::render('Admin/Settings');
     }
 
-    // Contact Management Methods
-    public function contacts()
+    // Message Management Methods
+    public function messages()
     {
         $contacts = Contact::with('respondedBy')
             ->latest()
@@ -409,20 +474,20 @@ class AdminController extends Controller
             'recent' => Contact::recent()->count(),
         ];
 
-        return Inertia::render('Admin/Contacts', [
+        return Inertia::render('Admin/Messages', [
             'contacts' => $contacts,
             'stats' => $stats,
         ]);
     }
 
-    public function contactDetail(Contact $contact)
+    public function messageDetail(Contact $contact)
     {
         // Mark as read when admin views it
         if (!$contact->is_read) {
             $contact->markAsRead();
         }
 
-        return Inertia::render('Admin/ContactDetail', [
+        return Inertia::render('Admin/MessageDetail', [
             'contact' => [
                 'id' => $contact->id,
                 'name' => $contact->name,
@@ -441,7 +506,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function respondToContact(Request $request, Contact $contact)
+    public function respondToMessage(Request $request, Contact $contact)
     {
         $validated = $request->validate([
             'response' => 'required|string|max:2000',
@@ -449,10 +514,10 @@ class AdminController extends Controller
 
         $contact->markAsResponded($validated['response'], auth()->id());
 
-        return back()->with('success', 'Response sent successfully!');
+        return back()->with('success', 'Message response sent successfully!');
     }
 
-    public function updateContactStatus(Request $request, Contact $contact)
+    public function updateMessageStatus(Request $request, Contact $contact)
     {
         $validated = $request->validate([
             'status' => 'required|in:new,in_progress,resolved,closed',
@@ -460,12 +525,12 @@ class AdminController extends Controller
 
         $contact->updateStatus($validated['status']);
 
-        return back()->with('success', 'Contact status updated successfully!');
+        return back()->with('success', 'Message status updated successfully!');
     }
 
-    public function deleteContact(Contact $contact)
+    public function deleteMessage(Contact $contact)
     {
         $contact->delete();
-        return redirect()->route('admin.contacts')->with('success', 'Contact message deleted successfully!');
+        return redirect()->route('admin.messages')->with('success', 'Message deleted successfully!');
     }
 }

@@ -67,12 +67,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
     Route::get('/settings', [App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
     
-    // Contact management routes
-    Route::get('/contacts', [App\Http\Controllers\AdminController::class, 'contacts'])->name('contacts');
-    Route::get('/contacts/{contact:id}', [App\Http\Controllers\AdminController::class, 'contactDetail'])->name('contacts.detail');
-    Route::post('/contacts/{contact:id}/respond', [App\Http\Controllers\AdminController::class, 'respondToContact'])->name('contacts.respond');
-    Route::put('/contacts/{contact:id}/status', [App\Http\Controllers\AdminController::class, 'updateContactStatus'])->name('contacts.status');
-    Route::delete('/contacts/{contact:id}', [App\Http\Controllers\AdminController::class, 'deleteContact'])->name('contacts.delete');
+    // Message management routes
+    Route::get('/messages', [App\Http\Controllers\AdminController::class, 'messages'])->name('messages');
+    Route::get('/messages/{contact:id}', [App\Http\Controllers\AdminController::class, 'messageDetail'])->name('messages.detail');
+    Route::post('/messages/{contact:id}/respond', [App\Http\Controllers\AdminController::class, 'respondToMessage'])->name('messages.respond');
+    Route::put('/messages/{contact:id}/status', [App\Http\Controllers\AdminController::class, 'updateMessageStatus'])->name('messages.status');
+    Route::delete('/messages/{contact:id}', [App\Http\Controllers\AdminController::class, 'deleteMessage'])->name('messages.delete');
 });
 
 Route::middleware('auth')->group(function () {
