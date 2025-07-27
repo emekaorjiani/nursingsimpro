@@ -102,12 +102,12 @@ export default function MyCourses({ enrolledCourses, user }) {
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/#images" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                    IMAGES
+                                POPULAR COURSES
                                 </Link>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }}>
                                 <Link href="/courses" className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                    COURSES
+                                ALL COURSES
                                 </Link>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }}>
@@ -172,10 +172,10 @@ export default function MyCourses({ enrolledCourses, user }) {
                                     ABOUT
                                 </Link>
                                 <Link href="/#images" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                    IMAGES
+                                    POPULAR COURSES
                                 </Link>
                                 <Link href="/courses" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                    COURSES
+                                ALL COURSES
                                 </Link>
                                 <Link href="/#contact" onClick={() => setIsMenuOpen(false)} className="block text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
                                     CONTACT

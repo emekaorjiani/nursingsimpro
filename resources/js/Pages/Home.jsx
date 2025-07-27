@@ -2,6 +2,11 @@ import MainLayout from '../Layouts/MainLayout';
 import { useForm, router, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 import { 
     Globe, 
     GraduationCap, 
@@ -31,6 +36,26 @@ export default function Home({ popularCourses }) {
         institution: '',
         message: '',
     });
+
+    // Array of images for the carousel
+    const heroImages = [
+        '/IMG_1154.JPG',
+        '/IMG_1155.JPG',
+        '/IMG_1156.JPG',
+        '/IMG_1157.JPG',
+        '/IMG_1158.JPG',
+        '/IMG_1160.JPG',
+        '/IMG_1162.JPG',
+        '/IMG_1163.JPG',
+        '/IMG_1164.JPG',
+        '/IMG_1165.JPG',
+        '/IMG_1166.JPG',
+        '/IMG_1167.JPG',
+        '/IMG_1168.JPG',
+        '/IMG_1169.JPG',
+        '/IMG_1170.JPG',
+        '/IMG_1171.JPG'
+    ];
 
     // Handle hash routing for navigation
     useEffect(() => {
@@ -136,7 +161,47 @@ export default function Home({ popularCourses }) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        <img src='' />
+                        <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
+                            <Swiper
+                                modules={[Autoplay, Pagination]}
+                                spaceBetween={0}
+                                slidesPerView={1}
+                                autoplay={{
+                                    delay: 3000,
+                                    disableOnInteraction: false,
+                                }}
+                                pagination={{
+                                    clickable: true,
+                                    dynamicBullets: true,
+                                }}
+                                loop={true}
+                                className="hero-swiper"
+                                breakpoints={{
+                                    640: {
+                                        slidesPerView: 1,
+                                    },
+                                    768: {
+                                        slidesPerView: 1,
+                                    },
+                                    1024: {
+                                        slidesPerView: 1,
+                                    },
+                                }}
+                            >
+                                {heroImages.map((image, index) => (
+                                    <SwiperSlide key={index}>
+                                        <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
+                                            <img
+                                                src={image}
+                                                alt={`Nursing Simulation ${index + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                        </div>
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        </div>
                     </motion.div>
                 </div>
             </section>
@@ -208,8 +273,19 @@ export default function Home({ popularCourses }) {
                                 transition={{ duration: 0.6, delay: 0.2 }}
                                 viewport={{ once: true }}
                             >
-                                <div className="image-placeholder">
-                                    <Target className="w-full h-full" />
+                                <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
+                                    <img
+                                        src="/IMG_1154.JPG"
+                                        alt="Nursing Mission - Global Healthcare Training"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 to-transparent"></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3">
+                                            <Target className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-gray-800 text-center">Our Mission</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>
@@ -220,7 +296,7 @@ export default function Home({ popularCourses }) {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
                             <motion.div 
                                 className="lg:order-2 lg:col-span-2"
-                                initial={{ opacity: 0, x: 50 }}
+                                initial={{ opacity: 0, x: -50 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.6 }}
                                 viewport={{ once: true }}
@@ -269,8 +345,19 @@ export default function Home({ popularCourses }) {
                                 transition={{ duration: 0.6, delay: 0.2 }}
                                 viewport={{ once: true }}
                             >
-                                <div className="image-placeholder">
-                                    <Eye className="w-full h-full" />
+                                <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
+                                    <img
+                                        src="/IMG_1165.JPG"
+                                        alt="Nursing Vision - Future of Healthcare Education"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3">
+                                            <Eye className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-gray-800 text-center">Our Vision</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>

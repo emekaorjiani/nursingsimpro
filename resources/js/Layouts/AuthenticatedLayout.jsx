@@ -46,12 +46,12 @@ export default function AuthenticatedLayout({ header, children }) {
                         </motion.li>
                         <motion.li whileHover={{ scale: 1.05 }}>
                             <Link href="/#images" onClick={() => setIsMenuOpen(false)} className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                IMAGES
+                            POPULAR COURSES
                             </Link>
                         </motion.li>
                         <motion.li whileHover={{ scale: 1.05 }}>
                             <Link href="/courses" onClick={() => setIsMenuOpen(false)} className="text-gray-700 font-medium transition-colors duration-300 hover:text-blue-600">
-                                COURSES
+                               ALL COURSES
                             </Link>
                         </motion.li>
                         <motion.li whileHover={{ scale: 1.05 }}>
