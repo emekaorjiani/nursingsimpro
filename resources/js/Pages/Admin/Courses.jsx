@@ -86,7 +86,7 @@ export default function AdminCourses({ courses }) {
                                         Edit
                                     </button>
                                     <a 
-                                        href={route('admin.courses.detail', course.id)}
+                                        href={route('admin.courses.detail', course.slug)}
                                         className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors text-center"
                                     >
                                         View

@@ -1,5 +1,5 @@
 import MainLayout from '../Layouts/MainLayout';
-import { useForm, router } from '@inertiajs/react';
+import { useForm, router, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { 
@@ -19,10 +19,12 @@ import {
     Phone, 
     MapPin,
     Target,
-    Eye
+    Eye,
+    BookOpen,
+    Play
 } from 'lucide-react';
 
-export default function Home() {
+export default function Home({ popularCourses }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -124,7 +126,7 @@ export default function Home() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                View Our Training
+                                Popular Courses
                             </motion.a>
                         </div>
                     </motion.div>
@@ -134,9 +136,7 @@ export default function Home() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        <div className="text-8xl text-white/20">
-                            <User className="w-full h-full" />
-                        </div>
+                        <img src='' />
                     </motion.div>
                 </div>
             </section>
@@ -319,7 +319,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Images Section */}
+            {/* Popular Courses Section */}
             <section id="images" className="py-24">
                 <div className="max-w-7xl mx-auto px-5">
                     <motion.div 
@@ -329,8 +329,8 @@ export default function Home() {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
-                        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">IMAGES</h2>
-                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">Explore our comprehensive training modules</p>
+                        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">MOST POPULAR COURSES</h2>
+                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">Explore our most sought-after training modules based on real user engagement</p>
                     </motion.div>
                     
                     <motion.div 
@@ -340,133 +340,77 @@ export default function Home() {
                         whileInView="visible"
                         viewport={{ once: true }}
                     >
-                        {/* TRANSFERRING A PATIENT */}
-                        <motion.div 
-                            className="bg-white rounded-2xl shadow-lg overflow-hidden"
-                            variants={itemVariants}
-                            whileHover={{ y: -10, scale: 1.02 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="image-placeholder training">
-                                <Bed className="w-full h-full" />
-                            </div>
-                            <div className="p-8">
-                                <h3 className="text-2xl font-bold mb-4 text-gray-800">TRANSFERRING A PATIENT</h3>
-                                <p className="text-gray-600 mb-6 leading-relaxed">
-                                    Master safe patient transfer techniques including bed-to-chair transfers, lateral transfers, and proper body mechanics to prevent injury to both patients and healthcare providers.
-                                </p>
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Safe Transfer Protocols</span>
+                        {popularCourses && popularCourses.map((course, index) => (
+                            <motion.div 
+                                key={course.id}
+                                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+                                variants={itemVariants}
+                                whileHover={{ y: -10, scale: 1.02 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <div className="image-placeholder training">
+                                    {course.thumbnail ? (
+                                        <img
+                                            src={`/storage/${course.thumbnail}`}
+                                            alt={course.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <BookOpen className="w-full h-full" />
+                                    )}
+                                </div>
+                                <div className="p-8">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-2xl font-bold text-gray-800">{course.title}</h3>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm text-gray-500">{course.difficulty}</span>
+                                            <span className="text-sm text-gray-500">•</span>
+                                            <span className="text-sm text-gray-500">{course.duration}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Body Mechanics</span>
+                                    <p className="text-gray-600 mb-6 leading-relaxed">
+                                        {course.description}
+                                    </p>
+                                    
+                                    {/* Course Stats */}
+                                    <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-blue-600">{course.enrollment_count}</div>
+                                            <div className="text-xs text-gray-500">Enrolled</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-green-600">{course.completion_count}</div>
+                                            <div className="text-xs text-gray-500">Completed</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-purple-600">{course.completion_rate}%</div>
+                                            <div className="text-xs text-gray-500">Success Rate</div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Equipment Usage</span>
+                                    
+                                    {/* Course Features */}
+                                    <div className="space-y-2">
+                                        {course.tags && course.tags.slice(0, 3).map((tag, tagIndex) => (
+                                            <div key={tagIndex} className="flex items-center text-sm text-gray-600">
+                                                <Check className="text-green-500 text-xs mr-2" />
+                                                <span className="capitalize">{tag}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* View Course Button */}
+                                    <div className="mt-6">
+                                        <Link
+                                            href={`/courses/${course.slug}`}
+                                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                        >
+                                            <Play className="w-4 h-4 mr-2" />
+                                            View Course
+                                        </Link>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-
-                        {/* CHILDBIRTH */}
-                        <motion.div 
-                            className="bg-white rounded-2xl shadow-lg overflow-hidden"
-                            variants={itemVariants}
-                            whileHover={{ y: -10, scale: 1.02 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="image-placeholder training">
-                                <Baby className="w-full h-full" />
-                            </div>
-                            <div className="p-8">
-                                <h3 className="text-2xl font-bold mb-4 text-gray-800">CHILDBIRTH</h3>
-                                <p className="text-gray-600 mb-6 leading-relaxed">
-                                    Comprehensive obstetric training covering labor and delivery procedures, neonatal care, maternal health monitoring, and emergency childbirth scenarios.
-                                </p>
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Labor & Delivery</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Neonatal Care</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Emergency Procedures</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* INTUBATION */}
-                        <motion.div 
-                            className="bg-white rounded-2xl shadow-lg overflow-hidden"
-                            variants={itemVariants}
-                            whileHover={{ y: -10, scale: 1.02 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="image-placeholder training">
-                                <Activity className="w-full h-full" />
-                            </div>
-                            <div className="p-8">
-                                <h3 className="text-2xl font-bold mb-4 text-gray-800">INTUBATION</h3>
-                                <p className="text-gray-600 mb-6 leading-relaxed">
-                                    Advanced airway management training including endotracheal intubation, airway assessment, ventilation techniques, and emergency airway procedures.
-                                </p>
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Airway Assessment</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Intubation Techniques</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Emergency Protocols</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* ORTHO - RANGE OF MOTION */}
-                        <motion.div 
-                            className="bg-white rounded-2xl shadow-lg overflow-hidden"
-                            variants={itemVariants}
-                            whileHover={{ y: -10, scale: 1.02 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="image-placeholder training">
-                                <Footprints className="w-full h-full" />
-                            </div>
-                            <div className="p-8">
-                                <h3 className="text-2xl font-bold mb-4 text-gray-800">ORTHO - RANGE OF MOTION</h3>
-                                <p className="text-gray-600 mb-6 leading-relaxed">
-                                    Orthopedic assessment and treatment training including range of motion exercises, joint mobilization, rehabilitation techniques, and orthopedic patient care.
-                                </p>
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>ROM Assessment</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Joint Mobilization</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Check className="text-green-500 text-xs mr-2" />
-                                        <span>Rehabilitation</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        ))}
                     </motion.div>
                 </div>
             </section>

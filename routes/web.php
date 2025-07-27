@@ -44,18 +44,35 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/courses', [App\Http\Controllers\AdminController::class, 'courses'])->name('courses');
     Route::get('/courses/create', [App\Http\Controllers\AdminController::class, 'createCourse'])->name('courses.create');
     Route::post('/courses', [App\Http\Controllers\AdminController::class, 'storeCourse'])->name('courses.store');
-    Route::get('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'courseDetail'])->name('courses.detail');
-    Route::get('/courses/{course:id}/edit', [App\Http\Controllers\AdminController::class, 'editCourse'])->name('courses.edit');
-    Route::put('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'updateCourse'])->name('courses.update');
-    Route::delete('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'deleteCourse'])->name('courses.delete');
+    
+    // Redirect old ID-based URLs to slug-based URLs (must be before slug routes)
+    Route::get('/courses/{id}', function ($id) {
+        $course = \App\Models\Course::find($id);
+        if ($course) {
+            return redirect()->route('admin.courses.detail', $course->slug);
+        }
+        abort(404);
+    })->where('id', '[0-9]+');
+    
+    Route::get('/courses/{course}', [App\Http\Controllers\AdminController::class, 'courseDetail'])->name('courses.detail');
+    Route::get('/courses/{course}/edit', [App\Http\Controllers\AdminController::class, 'editCourse'])->name('courses.edit');
+    Route::put('/courses/{course}', [App\Http\Controllers\AdminController::class, 'updateCourse'])->name('courses.update');
+    Route::delete('/courses/{course}', [App\Http\Controllers\AdminController::class, 'deleteCourse'])->name('courses.delete');
     
     // Lesson management
     Route::post('/lessons', [App\Http\Controllers\AdminController::class, 'storeLesson'])->name('lessons.store');
     Route::put('/lessons/{lesson:id}', [App\Http\Controllers\AdminController::class, 'updateLesson'])->name('lessons.update');
-    Route::delete('/lessons/{lesson:id}', [App\Http\Controllers\AdminController::class, 'deleteLesson'])->name('lessons.delete');
+    Route::delete('/lessons/{lesson:id}', [App\Http\Controllers\AdminController::class, 'deleteLesson'])->name('lessons.destroy');
     
     Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
     Route::get('/settings', [App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
+    
+    // Contact management routes
+    Route::get('/contacts', [App\Http\Controllers\AdminController::class, 'contacts'])->name('contacts');
+    Route::get('/contacts/{contact:id}', [App\Http\Controllers\AdminController::class, 'contactDetail'])->name('contacts.detail');
+    Route::post('/contacts/{contact:id}/respond', [App\Http\Controllers\AdminController::class, 'respondToContact'])->name('contacts.respond');
+    Route::put('/contacts/{contact:id}/status', [App\Http\Controllers\AdminController::class, 'updateContactStatus'])->name('contacts.status');
+    Route::delete('/contacts/{contact:id}', [App\Http\Controllers\AdminController::class, 'deleteContact'])->name('contacts.delete');
 });
 
 Route::middleware('auth')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\UserCourseProgress;
+use App\Models\Contact;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -109,30 +110,44 @@ class AdminController extends Controller
 
     public function storeCourse(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'slug' => 'required|string|unique:courses,slug',
-            'difficulty' => 'required|in:beginner,intermediate,advanced',
-            'duration_weeks' => 'required|integer|min:1',
-            'time_commitment_hours' => 'required|integer|min:1',
-            'language' => 'required|string|max:50',
-            'learning_objectives' => 'nullable|string',
-            'prerequisites' => 'nullable|string',
-            'is_published' => 'boolean',
-            'is_featured' => 'boolean',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            // Debug: Log what we received
+            \Log::info('Course store request received', [
+                'has_file' => $request->hasFile('thumbnail'),
+                'all_data' => $request->all(),
+                'files' => $request->allFiles(),
+            ]);
 
-        // Handle thumbnail upload
-        if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
-            $validated['thumbnail'] = $thumbnailPath;
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'slug' => 'required|string|unique:courses,slug',
+                'difficulty' => 'required|in:beginner,intermediate,advanced',
+                'duration_weeks' => 'required|integer|min:1',
+                'time_commitment_hours' => 'required|integer|min:1',
+                'language' => 'required|string|max:50',
+                'learning_objectives' => 'nullable|string',
+                'prerequisites' => 'nullable|string',
+                'is_published' => 'boolean',
+                'is_featured' => 'boolean',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Handle thumbnail upload
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
+                $validated['thumbnail'] = $thumbnailPath;
+            }
+
+            $course = Course::create($validated);
+
+            return redirect()->route('admin.courses')->with('success', 'Course created successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors with old input data preserved
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput($request->except(['thumbnail'])); // Exclude file from old input
         }
-
-        $course = Course::create($validated);
-
-        return redirect()->route('admin.courses')->with('success', 'Course created successfully!');
     }
 
     public function courseDetail(Course $course)
@@ -184,30 +199,44 @@ class AdminController extends Controller
 
     public function updateCourse(Request $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'slug' => 'required|string|unique:courses,slug,' . $course->id,
-            'difficulty' => 'required|in:beginner,intermediate,advanced',
-            'duration_weeks' => 'required|integer|min:1',
-            'time_commitment_hours' => 'required|integer|min:1',
-            'language' => 'required|string|max:50',
-            'learning_objectives' => 'nullable|string',
-            'prerequisites' => 'nullable|string',
-            'is_published' => 'boolean',
-            'is_featured' => 'boolean',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            // Debug: Log what we received
+            \Log::info('Course update request received', [
+                'has_file' => $request->hasFile('thumbnail'),
+                'all_data' => $request->all(),
+                'files' => $request->allFiles(),
+            ]);
 
-        // Handle thumbnail upload
-        if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
-            $validated['thumbnail'] = $thumbnailPath;
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'slug' => 'required|string|unique:courses,slug,' . $course->id,
+                'difficulty' => 'required|in:beginner,intermediate,advanced',
+                'duration_weeks' => 'required|integer|min:1',
+                'time_commitment_hours' => 'required|integer|min:1',
+                'language' => 'required|string|max:50',
+                'learning_objectives' => 'nullable|string',
+                'prerequisites' => 'nullable|string',
+                'is_published' => 'boolean',
+                'is_featured' => 'boolean',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Handle thumbnail upload
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
+                $validated['thumbnail'] = $thumbnailPath;
+            }
+
+            $course->update($validated);
+
+            return redirect()->route('admin.courses.detail', $course)->with('success', 'Course updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors with old input data preserved
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput($request->except(['thumbnail'])); // Exclude file from old input
         }
-
-        $course->update($validated);
-
-        return redirect()->route('admin.courses.detail', $course)->with('success', 'Course updated successfully!');
     }
 
     public function deleteCourse(Course $course)
@@ -218,87 +247,101 @@ class AdminController extends Controller
 
     public function storeLesson(Request $request)
     {
-        $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:course_lessons,slug',
-            'summary' => 'nullable|string',
-            'content' => 'required|string',
-            'duration_minutes' => 'required|integer|min:1',
-            'order' => 'required|integer|min:1',
-            'is_published' => 'boolean',
-            'video_url' => 'nullable|url',
-            'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
-            'materials' => 'nullable|array',
-            'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
-        ]);
+        try {
+            $validated = $request->validate([
+                'course_id' => 'required|exists:courses,id',
+                'title' => 'required|string|max:255',
+                'slug' => 'required|string|unique:course_lessons,slug',
+                'summary' => 'nullable|string',
+                'content' => 'required|string',
+                'duration_minutes' => 'required|integer|min:1',
+                'order' => 'required|integer|min:1',
+                'is_published' => 'boolean',
+                'video_url' => 'nullable|url',
+                'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
+                'materials' => 'nullable|array',
+                'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
+            ]);
 
-        // Handle video file upload
-        if ($request->hasFile('video_file')) {
-            $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
-            $validated['video_url'] = $videoPath; // Store file path in video_url field
-        }
-
-        // Handle materials upload
-        $materials = [];
-        if ($request->hasFile('materials')) {
-            foreach ($request->file('materials') as $material) {
-                $materialPath = $material->store('lesson-materials', 'public');
-                $materials[] = [
-                    'name' => $material->getClientOriginalName(),
-                    'path' => $materialPath,
-                    'size' => $material->getSize(),
-                    'type' => $material->getMimeType(),
-                ];
+            // Handle video file upload
+            if ($request->hasFile('video_file')) {
+                $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
+                $validated['video_url'] = $videoPath; // Store file path in video_url field
             }
+
+            // Handle materials upload
+            $materials = [];
+            if ($request->hasFile('materials')) {
+                foreach ($request->file('materials') as $material) {
+                    $materialPath = $material->store('lesson-materials', 'public');
+                    $materials[] = [
+                        'name' => $material->getClientOriginalName(),
+                        'path' => $materialPath,
+                        'size' => $material->getSize(),
+                        'type' => $material->getMimeType(),
+                    ];
+                }
+            }
+            $validated['resources'] = $materials;
+
+            $lesson = CourseLesson::create($validated);
+
+            return redirect()->back()->with('success', 'Lesson created successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors with old input data preserved
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput($request->except(['video_file', 'materials'])); // Exclude files from old input
         }
-        $validated['resources'] = $materials;
-
-        $lesson = CourseLesson::create($validated);
-
-        return redirect()->back()->with('success', 'Lesson created successfully!');
     }
 
     public function updateLesson(Request $request, CourseLesson $lesson)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:course_lessons,slug,' . $lesson->id,
-            'summary' => 'nullable|string',
-            'content' => 'required|string',
-            'duration_minutes' => 'required|integer|min:1',
-            'order' => 'required|integer|min:1',
-            'is_published' => 'boolean',
-            'video_url' => 'nullable|url',
-            'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
-            'materials' => 'nullable|array',
-            'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'slug' => 'required|string|unique:course_lessons,slug,' . $lesson->id,
+                'summary' => 'nullable|string',
+                'content' => 'required|string',
+                'duration_minutes' => 'required|integer|min:1',
+                'order' => 'required|integer|min:1',
+                'is_published' => 'boolean',
+                'video_url' => 'nullable|url',
+                'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
+                'materials' => 'nullable|array',
+                'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
+            ]);
 
-        // Handle video file upload
-        if ($request->hasFile('video_file')) {
-            $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
-            $validated['video_url'] = $videoPath; // Store file path in video_url field
-        }
-
-        // Handle materials upload
-        $materials = $lesson->resources ?? [];
-        if ($request->hasFile('materials')) {
-            foreach ($request->file('materials') as $material) {
-                $materialPath = $material->store('lesson-materials', 'public');
-                $materials[] = [
-                    'name' => $material->getClientOriginalName(),
-                    'path' => $materialPath,
-                    'size' => $material->getSize(),
-                    'type' => $material->getMimeType(),
-                ];
+            // Handle video file upload
+            if ($request->hasFile('video_file')) {
+                $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
+                $validated['video_url'] = $videoPath; // Store file path in video_url field
             }
+
+            // Handle materials upload
+            $materials = $lesson->resources ?? [];
+            if ($request->hasFile('materials')) {
+                foreach ($request->file('materials') as $material) {
+                    $materialPath = $material->store('lesson-materials', 'public');
+                    $materials[] = [
+                        'name' => $material->getClientOriginalName(),
+                        'path' => $materialPath,
+                        'size' => $material->getSize(),
+                        'type' => $material->getMimeType(),
+                    ];
+                }
+            }
+            $validated['resources'] = $materials;
+
+            $lesson->update($validated);
+
+            return redirect()->back()->with('success', 'Lesson updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors with old input data preserved
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput($request->except(['video_file', 'materials'])); // Exclude files from old input
         }
-        $validated['resources'] = $materials;
-
-        $lesson->update($validated);
-
-        return redirect()->back()->with('success', 'Lesson updated successfully!');
     }
 
     public function deleteLesson(CourseLesson $lesson)
@@ -332,5 +375,97 @@ class AdminController extends Controller
     public function settings()
     {
         return Inertia::render('Admin/Settings');
+    }
+
+    // Contact Management Methods
+    public function contacts()
+    {
+        $contacts = Contact::with('respondedBy')
+            ->latest()
+            ->paginate(20)
+            ->through(function ($contact) {
+                return [
+                    'id' => $contact->id,
+                    'name' => $contact->name,
+                    'email' => $contact->email,
+                    'institution' => $contact->institution,
+                    'message' => $contact->message,
+                    'status' => $contact->status,
+                    'is_read' => $contact->is_read,
+                    'admin_response' => $contact->admin_response,
+                    'created_at' => $contact->formatted_created_at,
+                    'responded_at' => $contact->formatted_responded_at,
+                    'responded_by' => $contact->respondedBy ? $contact->respondedBy->name : null,
+                    'status_color' => $contact->status_color,
+                    'has_response' => $contact->hasResponse(),
+                ];
+            });
+
+        // Get contact statistics
+        $stats = [
+            'total' => Contact::count(),
+            'new' => Contact::new()->count(),
+            'unread' => Contact::unread()->count(),
+            'recent' => Contact::recent()->count(),
+        ];
+
+        return Inertia::render('Admin/Contacts', [
+            'contacts' => $contacts,
+            'stats' => $stats,
+        ]);
+    }
+
+    public function contactDetail(Contact $contact)
+    {
+        // Mark as read when admin views it
+        if (!$contact->is_read) {
+            $contact->markAsRead();
+        }
+
+        return Inertia::render('Admin/ContactDetail', [
+            'contact' => [
+                'id' => $contact->id,
+                'name' => $contact->name,
+                'email' => $contact->email,
+                'institution' => $contact->institution,
+                'message' => $contact->message,
+                'status' => $contact->status,
+                'is_read' => $contact->is_read,
+                'admin_response' => $contact->admin_response,
+                'created_at' => $contact->formatted_created_at,
+                'responded_at' => $contact->formatted_responded_at,
+                'responded_by' => $contact->respondedBy ? $contact->respondedBy->name : null,
+                'status_color' => $contact->status_color,
+                'has_response' => $contact->hasResponse(),
+            ],
+        ]);
+    }
+
+    public function respondToContact(Request $request, Contact $contact)
+    {
+        $validated = $request->validate([
+            'response' => 'required|string|max:2000',
+        ]);
+
+        $contact->markAsResponded($validated['response'], auth()->id());
+
+        return back()->with('success', 'Response sent successfully!');
+    }
+
+    public function updateContactStatus(Request $request, Contact $contact)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:new,in_progress,resolved,closed',
+        ]);
+
+        $contact->updateStatus($validated['status']);
+
+        return back()->with('success', 'Contact status updated successfully!');
+    }
+
+    public function deleteContact(Contact $contact)
+    {
+        $contact->delete();
+        return redirect()->route('admin.contacts')->with('success', 'Contact message deleted successfully!');
     }
 }

@@ -17,7 +17,16 @@ return new class extends Migration
             $table->string('email');
             $table->string('institution')->nullable();
             $table->text('message');
+            $table->enum('status', ['new', 'in_progress', 'resolved', 'closed'])->default('new');
+            $table->boolean('is_read')->default(false);
+            $table->text('admin_response')->nullable();
+            $table->timestamp('responded_at')->nullable();
+            $table->unsignedBigInteger('responded_by')->nullable();
             $table->timestamps();
+            
+            $table->foreign('responded_by')->references('id')->on('users')->onDelete('set null');
+            $table->index(['status', 'is_read']);
+            $table->index('created_at');
         });
     }
 

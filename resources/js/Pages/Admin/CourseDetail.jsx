@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { motion } from 'framer-motion';
 import { 
@@ -18,25 +18,26 @@ import {
     AlertCircle,
     X
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AdminCourseDetail({ course, lessons }) {
+    const { old } = usePage().props;
     const [editingLesson, setEditingLesson] = useState(null);
     const [showAddLesson, setShowAddLesson] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors } = useForm({
-        title: course.title || '',
-        description: course.description || '',
-        slug: course.slug || '',
-        difficulty: course.difficulty || 'beginner',
-        duration_weeks: course.duration_weeks || 1,
-        time_commitment_hours: course.time_commitment_hours || 1,
-        language: course.language || 'English',
-        learning_objectives: course.learning_objectives || '',
-        prerequisites: course.prerequisites || '',
-        is_published: course.is_published || false,
-        is_featured: course.is_featured || false,
+        title: old?.title || course.title || '',
+        description: old?.description || course.description || '',
+        slug: old?.slug || course.slug || '',
+        difficulty: old?.difficulty || course.difficulty || 'beginner',
+        duration_weeks: old?.duration_weeks || course.duration_weeks || 1,
+        time_commitment_hours: old?.time_commitment_hours || course.time_commitment_hours || 1,
+        language: old?.language || course.language || 'English',
+        learning_objectives: old?.learning_objectives || course.learning_objectives || '',
+        prerequisites: old?.prerequisites || course.prerequisites || '',
+        is_published: old?.is_published !== undefined ? old.is_published : course.is_published || false,
+        is_featured: old?.is_featured !== undefined ? old.is_featured : course.is_featured || false,
     });
 
     const lessonForm = useForm({
@@ -56,9 +57,24 @@ export default function AdminCourseDetail({ course, lessons }) {
     const [videoPreview, setVideoPreview] = useState(null);
     const [materialsPreview, setMaterialsPreview] = useState([]);
 
+    // Handle old input data when component loads (for validation errors)
+    useEffect(() => {
+        if (old && Object.keys(old).length > 0) {
+            // If we have old data, it means there was a validation error
+            // We'll populate the form when a lesson is selected for editing
+        }
+    }, [old]);
+
+
+
     const handleUpdateCourse = (e) => {
         e.preventDefault();
-        put(route('admin.courses.update', course.id));
+        put(route('admin.courses.update', course.slug), {
+            onError: () => {
+                // Preserve the form data when validation fails
+                // The old input data will be automatically populated by Laravel
+            },
+        });
     };
 
     const handleAddLesson = (e) => {
@@ -67,12 +83,19 @@ export default function AdminCourseDetail({ course, lessons }) {
             onSuccess: () => {
                 setShowAddLesson(false);
                 lessonForm.reset();
+                setVideoPreview(null);
+                setMaterialsPreview([]);
+            },
+            onError: () => {
+                // Keep the form open and preserve the data when validation fails
+                // The old input data will be automatically populated by Laravel
             },
         });
     };
 
     const handleUpdateLesson = (e) => {
         e.preventDefault();
+        
         lessonForm.put(route('admin.lessons.update', editingLesson.id), {
             onSuccess: () => {
                 setEditingLesson(null);
@@ -80,13 +103,33 @@ export default function AdminCourseDetail({ course, lessons }) {
                 setVideoPreview(null);
                 setMaterialsPreview([]);
             },
+            onError: (errors) => {
+                // Keep the form open and preserve the data when validation fails
+                // The old input data will be automatically populated by Laravel
+            },
         });
     };
 
     const handleVideoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            lessonForm.setData('video_file', file);
+            // Create a safe copy of current form data
+            const currentData = {
+                course_id: lessonForm.data.course_id,
+                title: lessonForm.data.title || '',
+                slug: lessonForm.data.slug || '',
+                summary: lessonForm.data.summary || '',
+                content: lessonForm.data.content || '',
+                duration_minutes: lessonForm.data.duration_minutes || 30,
+                order: lessonForm.data.order || 1,
+                is_published: lessonForm.data.is_published || false,
+                video_url: lessonForm.data.video_url || '',
+                video_file: file,
+                materials: lessonForm.data.materials || [],
+            };
+            
+            // Update the form with all preserved data plus the new video file
+            lessonForm.setData(currentData);
             
             // Create preview for video
             const videoUrl = URL.createObjectURL(file);
@@ -96,7 +139,24 @@ export default function AdminCourseDetail({ course, lessons }) {
 
     const handleMaterialsChange = (e) => {
         const files = Array.from(e.target.files);
-        lessonForm.setData('materials', files);
+        
+        // Create a safe copy of current form data
+        const currentData = {
+            course_id: lessonForm.data.course_id,
+            title: lessonForm.data.title || '',
+            slug: lessonForm.data.slug || '',
+            summary: lessonForm.data.summary || '',
+            content: lessonForm.data.content || '',
+            duration_minutes: lessonForm.data.duration_minutes || 30,
+            order: lessonForm.data.order || 1,
+            is_published: lessonForm.data.is_published || false,
+            video_url: lessonForm.data.video_url || '',
+            video_file: lessonForm.data.video_file,
+            materials: files,
+        };
+        
+        // Update the form with all preserved data plus the new materials
+        lessonForm.setData(currentData);
         
         // Create previews for materials
         const previews = files.map(file => ({
@@ -110,7 +170,24 @@ export default function AdminCourseDetail({ course, lessons }) {
 
     const removeMaterial = (index) => {
         const newMaterials = lessonForm.data.materials.filter((_, i) => i !== index);
-        lessonForm.setData('materials', newMaterials);
+        
+        // Create a safe copy of current form data
+        const currentData = {
+            course_id: lessonForm.data.course_id,
+            title: lessonForm.data.title || '',
+            slug: lessonForm.data.slug || '',
+            summary: lessonForm.data.summary || '',
+            content: lessonForm.data.content || '',
+            duration_minutes: lessonForm.data.duration_minutes || 30,
+            order: lessonForm.data.order || 1,
+            is_published: lessonForm.data.is_published || false,
+            video_url: lessonForm.data.video_url || '',
+            video_file: lessonForm.data.video_file,
+            materials: newMaterials,
+        };
+        
+        // Update the form with all preserved data plus the updated materials
+        lessonForm.setData(currentData);
         
         const newPreviews = materialsPreview.filter((_, i) => i !== index);
         setMaterialsPreview(newPreviews);
@@ -134,22 +211,42 @@ export default function AdminCourseDetail({ course, lessons }) {
 
     const startEditLesson = (lesson) => {
         setEditingLesson(lesson);
-        lessonForm.setData({
-            title: lesson.title,
-            slug: lesson.slug,
-            summary: lesson.summary,
-            content: lesson.content,
-            duration_minutes: lesson.duration_minutes,
-            order: lesson.order,
-            is_published: lesson.is_published,
-            video_url: lesson.video_url || '',
+        
+        // Use old input data if available (from validation errors), otherwise use lesson data
+        const hasOldData = old && Object.keys(old).length > 0;
+        
+        const formData = {
+            course_id: course.id, // Add course_id to the form data
+            title: hasOldData ? (old.title || '') : (lesson.title || ''),
+            slug: hasOldData ? (old.slug || '') : (lesson.slug || ''),
+            summary: hasOldData ? (old.summary || '') : (lesson.summary || ''),
+            content: hasOldData ? (old.content || '') : (lesson.content || ''),
+            duration_minutes: hasOldData ? (old.duration_minutes || 30) : (lesson.duration_minutes || 30),
+            order: hasOldData ? (old.order || 1) : (lesson.order || 1),
+            is_published: hasOldData ? (old.is_published || false) : (lesson.is_published || false),
+            video_url: hasOldData ? (old.video_url || '') : (lesson.video_url || ''),
             video_file: null,
             materials: [],
-        });
+        };
+        
+        // Set form data field by field to ensure proper updates
+        lessonForm.setData('course_id', course.id);
+        lessonForm.setData('title', formData.title);
+        lessonForm.setData('slug', formData.slug);
+        lessonForm.setData('summary', formData.summary);
+        lessonForm.setData('content', formData.content);
+        lessonForm.setData('duration_minutes', formData.duration_minutes);
+        lessonForm.setData('order', formData.order);
+        lessonForm.setData('is_published', formData.is_published);
+        lessonForm.setData('video_url', formData.video_url);
+        lessonForm.setData('video_file', null);
+        lessonForm.setData('materials', []);
 
         // Set previews for existing video and materials
         if (lesson.video_url && !lesson.video_url.startsWith('http')) {
             setVideoPreview(`/storage/${lesson.video_url}`);
+        } else if (lesson.video_url && lesson.video_url.startsWith('http')) {
+            setVideoPreview(lesson.video_url);
         }
         
         if (lesson.resources && lesson.resources.length > 0) {
@@ -575,7 +672,7 @@ export default function AdminCourseDetail({ course, lessons }) {
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                             <div className="space-y-3">
                                 <motion.a
-                                    href={route('admin.courses.edit', course.id)}
+                                    href={route('admin.courses.edit', course.slug)}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="flex items-center w-full p-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
