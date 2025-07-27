@@ -8,6 +8,7 @@ use App\Models\UserCourseProgress;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Models\CourseLesson;
 
 class AdminController extends Controller
 {
@@ -132,6 +133,178 @@ class AdminController extends Controller
         $course = Course::create($validated);
 
         return redirect()->route('admin.courses')->with('success', 'Course created successfully!');
+    }
+
+    public function courseDetail(Course $course)
+    {
+        $course->load(['lessons' => function ($query) {
+            $query->orderBy('order');
+        }]);
+
+        return Inertia::render('Admin/CourseDetail', [
+            'course' => [
+                'id' => $course->id,
+                'title' => $course->title,
+                'description' => $course->description,
+                'slug' => $course->slug,
+                'thumbnail' => $course->thumbnail,
+                'difficulty' => $course->difficulty,
+                'duration_weeks' => $course->duration_weeks,
+                'time_commitment_hours' => $course->time_commitment_hours,
+                'language' => $course->language,
+                'learning_objectives' => $course->learning_objectives,
+                'prerequisites' => $course->prerequisites,
+                'is_published' => $course->is_published,
+                'is_featured' => $course->is_featured,
+                'enrollments_count' => $course->enrollments()->count(),
+            ],
+            'lessons' => $course->lessons->map(function ($lesson) {
+                return [
+                    'id' => $lesson->id,
+                    'title' => $lesson->title,
+                    'slug' => $lesson->slug,
+                    'summary' => $lesson->summary,
+                    'content' => $lesson->content,
+                    'duration_minutes' => $lesson->duration_minutes,
+                    'order' => $lesson->order,
+                    'is_published' => $lesson->is_published,
+                    'video_url' => $lesson->video_url,
+                    'resources' => $lesson->resources,
+                ];
+            }),
+        ]);
+    }
+
+    public function editCourse(Course $course)
+    {
+        return Inertia::render('Admin/EditCourse', [
+            'course' => $course,
+        ]);
+    }
+
+    public function updateCourse(Request $request, Course $course)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'slug' => 'required|string|unique:courses,slug,' . $course->id,
+            'difficulty' => 'required|in:beginner,intermediate,advanced',
+            'duration_weeks' => 'required|integer|min:1',
+            'time_commitment_hours' => 'required|integer|min:1',
+            'language' => 'required|string|max:50',
+            'learning_objectives' => 'nullable|string',
+            'prerequisites' => 'nullable|string',
+            'is_published' => 'boolean',
+            'is_featured' => 'boolean',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Handle thumbnail upload
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
+            $validated['thumbnail'] = $thumbnailPath;
+        }
+
+        $course->update($validated);
+
+        return redirect()->route('admin.courses.detail', $course)->with('success', 'Course updated successfully!');
+    }
+
+    public function deleteCourse(Course $course)
+    {
+        $course->delete();
+        return redirect()->route('admin.courses')->with('success', 'Course deleted successfully!');
+    }
+
+    public function storeLesson(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|unique:course_lessons,slug',
+            'summary' => 'nullable|string',
+            'content' => 'required|string',
+            'duration_minutes' => 'required|integer|min:1',
+            'order' => 'required|integer|min:1',
+            'is_published' => 'boolean',
+            'video_url' => 'nullable|url',
+            'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
+            'materials' => 'nullable|array',
+            'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
+        ]);
+
+        // Handle video file upload
+        if ($request->hasFile('video_file')) {
+            $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
+            $validated['video_url'] = $videoPath; // Store file path in video_url field
+        }
+
+        // Handle materials upload
+        $materials = [];
+        if ($request->hasFile('materials')) {
+            foreach ($request->file('materials') as $material) {
+                $materialPath = $material->store('lesson-materials', 'public');
+                $materials[] = [
+                    'name' => $material->getClientOriginalName(),
+                    'path' => $materialPath,
+                    'size' => $material->getSize(),
+                    'type' => $material->getMimeType(),
+                ];
+            }
+        }
+        $validated['resources'] = $materials;
+
+        $lesson = CourseLesson::create($validated);
+
+        return redirect()->back()->with('success', 'Lesson created successfully!');
+    }
+
+    public function updateLesson(Request $request, CourseLesson $lesson)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|unique:course_lessons,slug,' . $lesson->id,
+            'summary' => 'nullable|string',
+            'content' => 'required|string',
+            'duration_minutes' => 'required|integer|min:1',
+            'order' => 'required|integer|min:1',
+            'is_published' => 'boolean',
+            'video_url' => 'nullable|url',
+            'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv|max:512000', // 500MB max
+            'materials' => 'nullable|array',
+            'materials.*' => 'file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar|max:51200', // 50MB max per file
+        ]);
+
+        // Handle video file upload
+        if ($request->hasFile('video_file')) {
+            $videoPath = $request->file('video_file')->store('lesson-videos', 'public');
+            $validated['video_url'] = $videoPath; // Store file path in video_url field
+        }
+
+        // Handle materials upload
+        $materials = $lesson->resources ?? [];
+        if ($request->hasFile('materials')) {
+            foreach ($request->file('materials') as $material) {
+                $materialPath = $material->store('lesson-materials', 'public');
+                $materials[] = [
+                    'name' => $material->getClientOriginalName(),
+                    'path' => $materialPath,
+                    'size' => $material->getSize(),
+                    'type' => $material->getMimeType(),
+                ];
+            }
+        }
+        $validated['resources'] = $materials;
+
+        $lesson->update($validated);
+
+        return redirect()->back()->with('success', 'Lesson updated successfully!');
+    }
+
+    public function deleteLesson(CourseLesson $lesson)
+    {
+        $lesson->delete();
+        return redirect()->back()->with('success', 'Lesson deleted successfully!');
     }
 
     public function analytics()

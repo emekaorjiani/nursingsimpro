@@ -79,6 +79,14 @@ export default function LessonShow({ course, lesson, navigation, userProgress, u
         return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
     };
 
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Navigation Header */}
@@ -152,9 +160,6 @@ export default function LessonShow({ course, lesson, navigation, userProgress, u
                                 <CheckCircle className="w-8 h-8 text-green-600" />
                             )}
                         </div>
-                        {lesson.summary && (
-                            <p className="text-lg text-gray-600 mb-6">{lesson.summary}</p>
-                        )}
                         
                         <div className="flex items-center space-x-6 text-sm text-gray-500">
                             <div className="flex items-center">
@@ -168,33 +173,54 @@ export default function LessonShow({ course, lesson, navigation, userProgress, u
                         </div>
                     </div>
 
+                    {/* Video Section - First */}
+                    {lesson.video_url && (
+                        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                                {lesson.video_url.startsWith('http') ? (
+                                    // External video (YouTube, Vimeo, etc.)
+                                    <iframe
+                                        src={lesson.video_url}
+                                        title={lesson.title}
+                                        className="w-full h-full"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    ></iframe>
+                                ) : (
+                                    // Uploaded video file
+                                    <video
+                                        src={`/storage/${lesson.video_url}`}
+                                        controls
+                                        className="w-full h-full"
+                                        preload="metadata"
+                                    >
+                                        Your browser does not support the video tag.
+                                    </video>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Summary Section - Second */}
+                    {lesson.summary && (
+                        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                            <h3 className="text-xl font-bold text-gray-800 mb-4">Summary</h3>
+                            <div className="prose prose-lg max-w-none">
+                                <p className="text-gray-700 leading-relaxed">{lesson.summary}</p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Lesson Content */}
                     <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">Lesson Content</h3>
                         <div className="prose prose-lg max-w-none">
                             <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
                         </div>
                     </div>
 
-                    {/* Video Section */}
-                    {lesson.video_url && (
-                        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4">Video Content</h3>
-                            <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                                <a
-                                    href={lesson.video_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                                >
-                                    <Play className="w-5 h-5 mr-2" />
-                                    Watch Video
-                                    <ExternalLink className="w-4 h-4 ml-2" />
-                                </a>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Resources Section */}
+                    {/* Resources Section - Third */}
                     {lesson.resources && lesson.resources.length > 0 && (
                         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
                             <h3 className="text-xl font-bold text-gray-800 mb-4">Additional Resources</h3>
@@ -202,13 +228,18 @@ export default function LessonShow({ course, lesson, navigation, userProgress, u
                                 {lesson.resources.map((resource, index) => (
                                     <a
                                         key={index}
-                                        href={resource.url}
+                                        href={`/storage/${resource.path}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                                     >
                                         <ExternalLink className="w-4 h-4 text-blue-600 mr-3" />
-                                        <span className="text-gray-800">{resource.title}</span>
+                                        <div className="flex-1">
+                                            <span className="text-gray-800 font-medium">{resource.name}</span>
+                                            <p className="text-sm text-gray-500">
+                                                {resource.type} • {formatFileSize(resource.size)}
+                                            </p>
+                                        </div>
                                     </a>
                                 ))}
                             </div>

@@ -44,6 +44,16 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/courses', [App\Http\Controllers\AdminController::class, 'courses'])->name('courses');
     Route::get('/courses/create', [App\Http\Controllers\AdminController::class, 'createCourse'])->name('courses.create');
     Route::post('/courses', [App\Http\Controllers\AdminController::class, 'storeCourse'])->name('courses.store');
+    Route::get('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'courseDetail'])->name('courses.detail');
+    Route::get('/courses/{course:id}/edit', [App\Http\Controllers\AdminController::class, 'editCourse'])->name('courses.edit');
+    Route::put('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'updateCourse'])->name('courses.update');
+    Route::delete('/courses/{course:id}', [App\Http\Controllers\AdminController::class, 'deleteCourse'])->name('courses.delete');
+    
+    // Lesson management
+    Route::post('/lessons', [App\Http\Controllers\AdminController::class, 'storeLesson'])->name('lessons.store');
+    Route::put('/lessons/{lesson:id}', [App\Http\Controllers\AdminController::class, 'updateLesson'])->name('lessons.update');
+    Route::delete('/lessons/{lesson:id}', [App\Http\Controllers\AdminController::class, 'deleteLesson'])->name('lessons.delete');
+    
     Route::get('/analytics', [App\Http\Controllers\AdminController::class, 'analytics'])->name('analytics');
     Route::get('/settings', [App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
 });

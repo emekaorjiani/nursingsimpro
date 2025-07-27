@@ -15,14 +15,15 @@ export default function AdminCourses({ courses }) {
                         <h2 className="text-2xl font-bold text-gray-900">Courses Management</h2>
                         <p className="text-gray-600">Manage all available courses</p>
                     </div>
-                    <motion.button
+                    <motion.a
+                        href={route('admin.courses.create')}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Course
-                    </motion.button>
+                    </motion.a>
                 </div>
 
                 {/* Search and Filters */}
@@ -84,9 +85,12 @@ export default function AdminCourses({ courses }) {
                                     <button className="flex-1 bg-purple-600 text-white px-3 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors">
                                         Edit
                                     </button>
-                                    <button className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors">
+                                    <a 
+                                        href={route('admin.courses.detail', course.id)}
+                                        className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors text-center"
+                                    >
                                         View
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </motion.div>
