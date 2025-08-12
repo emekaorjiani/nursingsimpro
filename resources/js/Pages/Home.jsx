@@ -146,7 +146,7 @@ export default function Home({ popularCourses }) {
                                 Learn About Us
                             </motion.a>
                             <motion.a 
-                                href="/#images" 
+                                href="/#popular-courses" 
                                 className="btn-secondary"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -407,7 +407,8 @@ export default function Home({ popularCourses }) {
             </section>
 
             {/* Popular Courses Section */}
-            <section id="images" className="py-24">
+            {popularCourses && popularCourses.length > 0 && (
+            <section id="popular-courses" className="py-24">
                 <div className="max-w-7xl mx-auto px-5">
                     <motion.div 
                         className="text-center mb-16"
@@ -501,6 +502,7 @@ export default function Home({ popularCourses }) {
                     </motion.div>
                 </div>
             </section>
+            )}
 
             {/* Contact Section */}
             <section id="contact" className="py-24 bg-gray-50">
@@ -611,7 +613,7 @@ export default function Home({ popularCourses }) {
                                 </div>
                                 <motion.button 
                                     type="submit" 
-                                    className="btn-primary w-full" 
+                                    className="bg-gradient-to-r from-blue-500 to-purple-700 p-4 rounded-lg text-white w-full hover:bg-blue-700 transition-colors duration-200" 
                                     disabled={processing}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
